@@ -1,0 +1,55 @@
+﻿@using DropDownList.Models
+@{
+    ViewBag.Title = "Index";
+    List<Province> lstProvince = ViewBag.ListProvince as List<Province>;
+}
+
+<h2>ProvinceIndex</h2>
+
+<label>省份：</label>
+
+<select id="myProvince">
+    @foreach (var item in lstProvince)
+    {
+        //将ProvinceID设置成每条数据的Value的值,在后面可以通过Jquery的value函数获取到省区的ID值
+        <option value="@item.ProvinceID">@item.ProvinceName</option>        
+    }
+</select>
+
+<br />
+<br />
+
+<label>城市：</label>
+<select id="myCity"></select>
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script type="text/javascript">
+    $(function () {
+        //change()函数是在值发生变化时触发函数,在此处触发ajax去后台获取该省份的城市的数据
+        $("#myProvince").change(function () {
+            //获取省份ID
+            var provinceId = $("#myProvince").val();
+            //获取到城市的变量,为方便后续的赋值
+            var myCity = $("#myCity");
+            $.ajax({
+                url: '/Province/GetAllCityByProvinceID/' + provinceId,
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (result) {
+                    var myHtml = "";
+                    myCity.html("");
+                    //jquery的each函数进行遍历输出后台返回的Json格式的数据
+                    $.each(result,function(i,data){
+                        myHtml+="<Option value="+data.CityID+">"+data.CityName+"</option>";
+                    });
+                    myCity.append(myHtml);
+                },
+                error:function(result)
+                {
+                    alert(result.responseText);
+                }
+            })
+        })
+    })
+</script>
+
